@@ -33,16 +33,22 @@
 <dialog id="dlg"><div class="mh"><b id="dtl">⚙ Настройки</b><button class="btn x" data-a="cl" aria-label="Закрыть">✕</button></div><div class="mt" id="mtb"></div><div id="mb"></div></dialog><div id="toast"></div>
 <!-- [HTML] МИНИ-ПЛЕЕР: всегда внизу; музыка НЕ включается сама, только по нажатию «▶» -->
 <div id="pl" hidden><div class="cv" id="plc">🎵</div><div class="pi"><b id="plt">Выберите трек</b><small id="plk"></small><input type="range" id="pls" min="0" max="1000" value="0" aria-label="Прогресс"></div><div class="pb"><button data-a="pv" aria-label="Предыдущий">⏮</button><button data-a="pp" id="ppb" aria-label="Играть/пауза">▶</button><button data-a="pn" aria-label="Следующий">⏭</button></div><div class="vl">🔊 <input type="range" id="plv" min="0" max="100" value="70" aria-label="Громкость"><span id="plm"></span></div><audio id="au" preload="none"></audio></div>
+<div id="net" class="ok" role="status">● подключаюсь…</div>
 <script>
 /* ===== [КОД: онлайн-база] Firebase Realtime Database через обычные запросы (без SDK) =====
    Адрес базы — ваш. Сайт хранит данные в ветках: site/<раздел> и reviews/<id>; регистрации в форме — в site_users. */
 const FBURL="https://star-novel-6c2f2-default-rtdb.firebaseio.com";
-const FBX=async(p,m,b)=>{const r=await fetch(FBURL+'/'+p+'.json',{method:m||'GET',body:b===undefined?undefined:JSON.stringify(b)});if(!r.ok)throw new Error('fb '+r.status);return r.json()};
+const VER={};
+function netSet(ok,e){const n=document.getElementById('net');if(!n)return;n.className=ok?'ok':'bad';const c=e&&/\d+/.exec(e.message||''),code=c?+c[0]:0;
+ n.textContent=ok?'● онлайн':'● нет связи'+(code==401||code==403?': базе запрещён доступ (правила)':code==402||code==429?': у Firebase закончился лимит трафика':code?' (код '+code+')':'');n.title='Нажмите, чтобы проверить связь заново'}
+const FBX=async(p,m,b)=>{try{const [pp,q]=p.split('?'),r=await fetch(FBURL+'/'+pp+'.json'+(q?'?'+q:''),{method:m||'GET',cache:'no-store',body:b===undefined?undefined:JSON.stringify(b)});if(!r.ok)throw new Error('fb '+r.status);const j=await r.json();netSet(true);return j}catch(e){netSet(false,e);throw e}};
+/* после каждой записи ставим маленькую «метку версии» ver/<раздел>: остальные проверяют только её (пара байт), а не качают всю базу с картинками */
+const bumpV=async p=>{const k=p.startsWith('site/')?p.slice(5):p.split('/')[0],t=Date.now()+'.'+Math.random().toString(36).slice(2,6);try{await FBX('ver/'+k,'PUT',t);VER[k]=t}catch{}};
 const FB={doc:p=>({id:p.split('/').pop(),
   async get(){const v=await FBX(p);return{id:p.split('/').pop(),exists:v!==null,data:()=>v}},
-  async set(o){await FBX(p,'PUT',o)},async delete(){await FBX(p,'DELETE')}}),
+  async set(o){await FBX(p,'PUT',o);await bumpV(p)},async delete(){await FBX(p,'DELETE');await bumpV(p)}}),
  collection:p=>({async get(){const v=(await FBX(p))||{};return{docs:Object.entries(v).map(([id,o])=>({id,exists:true,data:()=>o}))}}})};
-async function fbInit(){try{await FBX('site','GET');return FB}catch{return null}}
+async function fbInit(){try{await FBX('site?shallow=true');return FB}catch{return null}}
 document.addEventListener('click',e=>{
  const btn=e.target.closest('#regBtn');if(!btn)return;
  const name=document.getElementById('username')?.value.trim(),email=document.getElementById('useremail')?.value.trim(),st=document.getElementById('statusMsg');
@@ -132,7 +138,7 @@ function egg(id,msg){boom();toast(msg);if(!me)return;const u=S.users.find(x=>x.n
    5б. УРОВНИ, ЗНАЧКИ, ТИТУЛЫ  [КОД: достижения]
    ============================================================ */
 const MAXL=99,MY=()=>{try{return JSON.parse(localStorage.getItem('sn_my'))||{}}catch{return{}}},SMY=m=>localStorage.setItem('sn_my',JSON.stringify(m));
-const xpOf=n=>{const t=stat(n),u=S.users.find(x=>x.n==n)||{};return t.l+t.c*2+t.f*3+Object.keys((S.marks||{})[n]||{}).length+(u.fo||0)},lvl=n=>n==AN?MAXL:Math.min(MAXL,Math.floor(xpOf(n)/5)+1);
+const xpOf=n=>{const t=stat(n),u=S.users.find(x=>x.n==n)||{},c=t.l+t.c*2+t.f*3+Object.keys((S.marks||{})[n]||{}).length+(u.fo||0);if(me&&n==me.n&&u.n&&c>(u.xm||0)){u.xm=c;save('users')}return Math.max(c,u.xm||0)+(u.xb||0)},/* КОД: опыт = максимум, который игрок когда-либо набрал (xm) + выданный владельцем (xb) */lvl=n=>n==AN?MAXL:Math.min(MAXL,Math.floor(xpOf(n)/5)+1);
 const UI=n=>{const u=S.users.find(x=>x.n==n)||{};return{...u,n,s:stat(n),m:Object.keys((S.marks||{})[n]||{}).length,lv:lvl(n),dy:u.t?(Date.now()-u.t)/864e5:0}};
 const BG=[['🌱','Новичок','Зарегистрироваться',u=>1],['💖','Первая симпатия','Поставить лайк',u=>u.s.l>=1],['💬','Болтушка','3 комментария',u=>u.s.c>=3],['🗣','Душа компании','15 комментариев',u=>u.s.c>=15],['🌟','Фанат','10 лайков',u=>u.s.l>=10],['💝','Сердце сайта','50 лайков',u=>u.s.l>=50],['✍️','Автор тем','Создать тему на форуме',u=>u.s.f>=1],['📚','Писатель','5 тем на форуме',u=>u.s.f>=5],['🕰','Старожил','Неделя с нами',u=>u.dy>=7],['🏛','Легенда','100 дней с нами',u=>u.dy>=100],['📍','Планировщик','Первая личная отметка',u=>u.m>=1],['🗓','Хронист','10 личных отметок',u=>u.m>=10],['🔮','Гадалка','Предсказание куклы',u=>(u.fo||0)>=1],['🎴','Мистик','10 предсказаний',u=>(u.fo||0)>=10],['🎭','Поклонник','Выбрать любимого персонажа',u=>!!u.fc],['🖼','Модник','Своя аватарка',u=>(u.av||'').startsWith('data:')],['🎂','Именинник','Указать день рождения',u=>!!u.bd],['🔗','Общительный','Добавить ссылку',u=>!!u.lk],['📝','Рассказчик','Заполнить «О себе»',u=>!!u.bio],['🎞','Режиссёр','Свой баннер профиля',u=>!!u.bi],['🎮','Игрок','Сыграть в мини-игру',u=>(u.g||0)>=1],['🧠','Мастер памяти','Выиграть в «Память»',u=>(u.gm||0)>=1],['⭐','Звёздный кликер','50 очков в кликере',u=>(u.gc||0)>=50],['🥚','Пасхалка','Найти секрет на сайте',u=>eg(u).length>=1],['🔝','Уровень 10','Достичь 10 уровня',u=>u.lv>=10],['🚀','Уровень 25','Достичь 25 уровня',u=>u.lv>=25],['💎','Уровень 50','Достичь 50 уровня',u=>u.lv>=50],['👑','Автор сайта','Только создатель',u=>u.n==AN],['📅','Постоянный гость','7 дней заходов',u=>(u.vc||0)>=7],['🏕','Завсегдатай','30 дней заходов',u=>(u.vc||0)>=30],['🧱','Автор стены','Написать на стене в чужом профиле',u=>(u.wl||0)>=1],['🕵','Охотник за секретами','Найти 3 пасхалки',u=>eg(u).length>=3],['🧿','Король пасхалок','Найти все 6 пасхалок',u=>eg(u).length>=6],['💬','Цитатник','Цитата в профиле',u=>!!u.qt],['🎧','Меломан','Указать, что слушаете',u=>!!u.ms],['🏷','Знаток интересов','Указать интересы',u=>!!u.it],['🪞','Рамка','Выбрать рамку аватара',u=>!!u.fr],['🛡','Страж','Роль модератора и выше',u=>['mod','admin','owner'].includes(rl(u.n))],['🌐','Знакомство','Оставить сообщение на стене',u=>(u.wl||0)>=3]];
 const earned=n=>{const u=UI(n);return BG.map(b=>n==AN||!!b[3](u))};
@@ -214,7 +220,7 @@ async function init(){
  [db,assets,dl,user]=await Promise.all(['db','assets','downloads','user'].map(U));
  db=await fbInit();assets=null;if(!db)setTimeout(()=>toast('Нет связи с базой: данные сохраняются только в этом браузере'),1500);
  setMe();
- if(db){const bad=(await Promise.all(Object.keys(S).map(ld))).filter(x=>!x).length;if(bad)toast('Часть данных не загрузилась, обновляю…')}else for(const k of Object.keys(S)){let v;try{v=JSON.parse(localStorage.getItem('sn_'+k))}catch{}if(v!=null)S[k]=v}
+ if(db){try{Object.assign(VER,await FBX('ver')||{})}catch{}const bad=(await Promise.all(Object.keys(S).map(ld))).filter(x=>!x).length;if(bad)toast('Часть данных не загрузилась, обновляю…')}else for(const k of Object.keys(S)){let v;try{v=JSON.parse(localStorage.getItem('sn_'+k))}catch{}if(v!=null)S[k]=v}
  sync();if(me){const u=S.users.find(x=>x.n==me.n),t=dk(Date.now());if(u&&u.vl!=t){u.vl=t;u.vc=(u.vc||0)+1;save('users')}}
  if(!S.cfg.v2){S.cfg.v2=1;['ach','top','fun'].forEach(k=>S.cfg.vis.includes(k)||S.cfg.vis.push(k))}
  if(!db&&!localStorage.getItem('sn_theme')&&matchMedia('(prefers-color-scheme:dark)').matches)S.theme.p='night';
@@ -291,7 +297,7 @@ const inp=(k,v,p)=>`<input data-c="${k}" value="${esc(v)}" placeholder="${p}" st
    12. ОКНО НАСТРОЕК (M)  [КОД: настройки] — view: чужой профиль · prof: настройки профиля
        look: оформление · site/usr/data: администрирование сайта
    ============================================================ */
-const M={view(){return PV(vpn,false)+COLL(vpn,false)},prof(){if(!me)return `<div class="c"><h3>Вход и регистрация</h3><div class="f"><input id="ln" placeholder="Логин" autocomplete="username"><input id="lp" type="password" placeholder="Пароль (от 6 символов)" autocomplete="current-password"></div><div class="f"><button class="btn" data-a="login">Войти</button><button class="btn s" data-a="reg">Зарегистрироваться</button></div></div>`;
+const M={view(){return PV(vpn,false)+(own&&me&&vpn!=me.n?`<div class="c"><h3>🎁 Выдать опыт</h3><p class="mu">Только для владельца: добавляет очки опыта этому игроку (например, вернуть потерянное).</p><div class="f"><input id="gxp" type="number" value="10" style="max-width:110px"><button class="btn" data-a="gxp">Выдать</button></div></div>`:'')+COLL(vpn,false)},prof(){if(!me)return `<div class="c"><h3>Вход и регистрация</h3><div class="f"><input id="ln" placeholder="Логин" autocomplete="username"><input id="lp" type="password" placeholder="Пароль (от 6 символов)" autocomplete="current-password"></div><div class="f"><button class="btn" data-a="login">Войти</button><button class="btn s" data-a="reg">Зарегистрироваться</button></div></div>`;
  const u=S.users.find(x=>x.n==me.n)||{};return `<div class="c"><h3>${AV(u.av)}${esc(me.n)}</h3><div class="f"><input id="pa" value="${u.av&&!u.av.startsWith('data:')?esc(u.av):''}" maxlength="4" placeholder="Эмодзи-аватар" style="max-width:150px"><input type="file" id="pf" accept="image/*"><label>цвет имени <input type="color" id="pc" value="${u.c||'#b23fe0'}"></label></div><div class="f"><input id="ps" value="${esc(u.st||'')}" maxlength="60" placeholder="Статус, например «ждём новую главу»"></div><div class="f"><select id="pf2"><option value="">Любимый персонаж…</option>${S.script.chars.filter(c=>c.id!='n').map(c=>`<option value="${c.id}" ${u.fc==c.id?'selected':''}>${esc(c.n)}</option>`).join('')}</select><select id="pn">${BNN.map((n,i)=>`<option value="${i}" ${(u.bn||0)==i?'selected':''}>Баннер: ${n}</option>`).join('')}</select><label>🎂 <input type="date" id="pd" value="${u.bd||''}"></label></div><div class="f"><select id="pti">${TT.map((t,i)=>tOK(me.n,i)?`<option value="${i}" ${(u.ti!=null&&tOK(me.n,u.ti)?u.ti:tdef(me.n))==i?'selected':''}>${t[1]} ${t[2]} (ур. ${t[0]})</option>`:'').join('')}</select></div><div class="f"><label class="k">Свой баннер профиля — 1200×300 px (4:1), JPG/WebP<input type="file" id="pbi" accept="image/*"></label>${u.bi?'<button class="btn x" data-a="biX">убрать баннер</button>':''}</div><div class="f"><input id="pl" value="${esc(u.lk||'')}" placeholder="Ссылка (https://…)"></div><div class="f"><input id="pmd" value="${esc(u.md||'')}" maxlength="4" placeholder="Настроение 😊" style="max-width:150px"><input id="pms" value="${esc(u.ms||'')}" maxlength="60" placeholder="🎧 Сейчас слушаю"><select id="pfr">${FR.map(f=>`<option value="${f[0]}" ${(u.fr||'')==f[0]?'selected':''}>Рамка: ${f[1]}</option>`).join('')}</select></div><div class="f"><input id="pqt" value="${esc(u.qt||'')}" maxlength="120" placeholder="Любимая цитата"><input id="pit" value="${esc(u.it||'')}" maxlength="80" placeholder="Интересы через запятую: арт, музыка"></div><textarea id="pb" placeholder="О себе">${esc(u.bio||'')}</textarea><div class="f"><button class="btn" data-a="saveP">Сохранить</button><button class="btn s" data-a="logout">Выйти</button></div></div>${SHOW()}${PERM()}`},/* ▶ НАСТРОЙКИ ОФОРМЛЕНИЯ [КОД: настройки] */
 
 look(){if(!ed)return LKP();const T=S.theme,P={...PRE[T.p],...(T.ov||{})},sl=k=>`<select data-t="${k}">${FN.map(f=>`<option ${f==(T[k]||'Onest')?'selected':''}>${f}</option>`).join('')}</select>`,rg=(k,a,b,d)=>`<input type="range" data-t="${k}" data-n="1" min="${a}" max="${b}" value="${T[k]||d}">`;
@@ -491,7 +497,7 @@ Object.assign(V,{cast(){const L=visC(),c=L.find(x=>x.id==cid);
  return `<div class="c"><h3>👥 Персонажи</h3><p class="mu">Нажмите на героя. Часть сведений скрыта — раскрывайте её сами, это ваш выбор.</p><div class="g cg">${L.map(x=>`<button class="c cb ${cid==x.id?'on':''}" data-a="cid" data-v="${x.id}">${sx(x)?'<div class="pt">🙈</div><b>???</b><small>спойлер</small>':`${PORT(x)}<b>${esc(x.n)}</b><small class="mu">${esc(x.role)}</small>`}</button>`).join('')||'<p class="mu">Пока никого нет.</p>'}${ed?'<button class="c cb" data-a="cnew"><div class="pt">➕</div><b>Новый</b><small class="mu">персонаж</small></button>':''}</div></div>`+(ed&&pgo.cast?`<div class="c pgp" id="ped"><h3>⚙ Редактирование персонажей</h3>${CPANEL()}</div>`:'')+GR()+(c&&!sx(c)?CD(c):'')}});
 Object.assign(A,{cid(b){const c=S.cast.find(x=>x.id==b.dataset.v);if(c&&sx(c)){if(!confirm('Спойлер! Показать этого персонажа?'))return;const m=MY();(m.rv=m.rv||[]).push('c:'+c.id);SMY(m)}cid=b.dataset.v;tab='cast';render();setTimeout(()=>{const e=$('#ped')||$('#cd');e&&e.scrollIntoView({behavior:'smooth',block:'start'})},60)},
 rv(b){if(+b.dataset.l>1&&!confirm('⚠ Серьёзный сюжетный спойлер. Раскрыть?'))return;const m=MY();(m.rv=m.rv||[]).push(b.dataset.v);SMY(m);render()},
-ccard(b){const c=S.cast.find(x=>x.id==b.dataset.v);if(!c)return;if(sx(c))return toast('Сначала откройте этого героя (спойлер)');const n=cardNeed(c);if(n.no)return toast(n.t);colAdd('cards',c.id,'Карточка: '+c.n)},cq(b){colAdd('quotes',b.dataset.v,'Редкая цитата')},cart(b){colAdd('art',b.dataset.v,'Арт')}});
+gxp(){const u=S.users.find(x=>x.n==vpn);if(!u)return;u.xb=(u.xb||0)+(+$('#gxp').value||0);save('users');rm();render();toast('Опыт выдан')},ccard(b){const c=S.cast.find(x=>x.id==b.dataset.v);if(!c)return;if(sx(c))return toast('Сначала откройте этого героя (спойлер)');const n=cardNeed(c);if(n.no)return toast(n.t);colAdd('cards',c.id,'Карточка: '+c.n)},cq(b){colAdd('quotes',b.dataset.v,'Редкая цитата')},cart(b){colAdd('art',b.dataset.v,'Арт')}});
 /* ============================================================
    18. НОВОЕ · МУЗЫКА И ПЛЕЕР  [КОД: вкладка-музыка] — треки по разделам + мини-плеер внизу (само не играет)
    ============================================================ */
@@ -657,14 +663,18 @@ const busy=()=>{const a=document.activeElement;return document.hidden||$('#dlg')
 function softRender(){if(STALE&&!busy()){STALE=0;sync();theme();render()}}
 async function poll(){
  if(!db||document.hidden)return;
- for(const k of Object.keys(S)){
+ let nv;try{nv=await FBX('ver')||{}}catch{return}
+ for(const k of [...Object.keys(S),'reviews']){
+  if(k=='reviews'){if(nv.reviews!==VER.reviews){VER.reviews=nv.reviews;await loadR();STALE=1}continue}
   if(PN[k])continue;
   if(BAD[k]){if(await ld(k))STALE=1;continue}
+  if(nv[k]===VER[k])continue;
   try{const d=await db.doc('site/'+k).get(),rv=d.exists?d.data().v:'';
-   if(PN[k]||rv===(BASE[k]||''))continue;
-   S[k]=mrg(pj(BASE[k]),S[k],pj(rv));BASE[k]=rv;STALE=1}catch{}}
- const o=J(R);await loadR();if(J(R)!==o)STALE=1;
+   if(PN[k])continue;
+   if(rv!==(BASE[k]||'')){S[k]=mrg(pj(BASE[k]),S[k],pj(rv));BASE[k]=rv;STALE=1}
+   VER[k]=nv[k]}catch{}}
  softRender()}
+$('#net').onclick=()=>poll();
 setInterval(poll,15000);setInterval(softRender,3000);
 document.addEventListener('visibilitychange',()=>{if(!document.hidden)poll()});addEventListener('online',poll);
 init();
