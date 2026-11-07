@@ -1,4 +1,0 @@
-/* ===== [ВКЛАДКА] ПЕРСОНАЖИ (cast.html): карточки и граф отношений =====
-   Подключается на своей странице: <script src="views/cast.js">. Общие помощники лежат в js/core.js и js/features.js. */
-Object.assign(V,{cast(){const L=visC(),c=L.find(x=>x.id==cid);
- return `<div class="c"><h3>👥 Персонажи</h3><p class="mu">Нажмите на героя. Часть сведений скрыта — раскрывайте её сами, это ваш выбор.</p><div class="g cg">${L.map(x=>`<button class="c cb ${cid==x.id?'on':''}" data-a="cid" data-v="${x.id}">${sx(x)?'<div class="pt">🙈</div><b>???</b><small>спойлер</small>':`${PORT(x)}<b>${esc(x.n)}</b><small class="mu">${esc(x.role)}</small>`}</button>`).join('')||'<p class="mu">Пока никого нет.</p>'}${ed?'<button class="c cb" data-a="cnew"><div class="pt">➕</div><b>Новый</b><small class="mu">персонаж</small></button>':''}</div></div>`+(ed&&pgo.cast?`<div class="c pgp" id="ped"><h3>⚙ Редактирование персонажей</h3>${CPANEL()}</div>`:'')+GR()+(c&&!sx(c)?CD(c):'')}});

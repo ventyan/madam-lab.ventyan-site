@@ -1,4 +1,0 @@
-/* ===== [ВКЛАДКА] ОПРОСЫ (polls.html): «Решают читатели» =====
-   Подключается на своей странице: <script src="views/polls.js">. Общие помощники лежат в js/core.js и js/features.js. */
-Object.assign(V,{polls(){const L=S.polls.filter(p=>ed||!p.hide),a=L.filter(p=>!pEnd(p)),r=L.filter(pEnd);
- return (ed?`<div class="c"><h3>➕ Новый опрос</h3><div class="f"><input id="pq" placeholder="Вопрос"></div><textarea id="po" placeholder="Варианты — каждый с новой строки"></textarea><div class="f"><label>Окончание <input type="date" id="pe"></label><button class="btn" data-a="padd">Создать</button></div></div>`:'')+`<h3 style="margin:8px 0">🗳 Решают читатели</h3>`+(a.map(PC).join('')||'<div class="c"><p class="mu">Сейчас открытых голосований нет.</p></div>')+(r.length?`<h3 style="margin:18px 0 8px">📦 Архив голосований</h3>`+r.map(PC).join(''):'')}});

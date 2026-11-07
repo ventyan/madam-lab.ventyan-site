@@ -1,7 +1,0 @@
-/* ===== [ВКЛАДКА] ХРАНИЛИЩЕ (vault.html): файлы по категориям =====
-   Подключается на своей странице: <script src="views/vault.js">. Общие помощники лежат в js/core.js и js/features.js. */
-Object.assign(V,{vault(){const L=S.vault.map((f,i)=>({f,i})).filter(o=>o.f.cat==vc);
- return `<div class="f">${CAT.map(c=>`<button class="btn ${c==vc?'':'s'}" data-a="vc" data-v="${c}">${c}</button>`).join('')}</div>`+
- (ed?`<div class="c"><h3>Добавить в «${vc}»</h3><div class="f"><input type="file" id="vf" multiple><button class="btn" data-a="addV">Загрузить</button></div><div class="f"><input id="vn" placeholder="Название"><input id="vl" placeholder="Или ссылка на файл"><button class="btn s" data-a="addVL">Добавить ссылку</button></div><p class="mu">Облако принимает картинки, PDF, текст, видео. Музыку и архивы добавляйте ссылкой.</p></div>`:'')+
- `<div class="g">${L.map(({f,i})=>{const u=esc(fu(f));const ty=f.ty||'';return `<div class="c" style="margin:0">${ty.startsWith('image')?`<img src="${u}" alt="">`:ty.startsWith('audio')?`<audio controls src="${u}" style="width:100%"></audio>`:''}<p style="margin:8px 0 4px;word-break:break-word"><a href="${u}" target="_blank" rel="noopener">${esc(f.n)}</a></p><span class="mu">${f.sz?sz(f.sz):'ссылка'}</span>${ed?` <button class="btn x" data-a="delV" data-i="${i}">Удалить</button>`:''}</div>`}).join('')||'<p class="mu">Здесь пока пусто.</p>'}</div>`},/* ▶ ВКЛАДКА «Сценарий» [КОД: вкладка] */
-});
