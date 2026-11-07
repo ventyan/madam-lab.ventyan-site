@@ -1,0 +1,4 @@
+/* ===== [ВКЛАДКА] ИГРЫ (fun.html): магический шар, память, кликер =====
+   Подключается на своей странице: <script src="views/fun.js">. Общие помощники лежат в js/core.js и js/features.js. */
+Object.assign(V,{fun(){return `<div class="c"><h3>🎱 Магический шар куклы</h3><div class="f"><input id="bq" placeholder="Задай вопрос…"><button class="btn" data-a="ball">Спросить</button></div><p id="ba" style="font-size:20px;min-height:30px"></p></div><div class="c"><h3>🧠 Память: найди пары</h3><div class="f"><button class="btn s" data-a="mnew">Новая игра</button><span class="mu" id="mi"></span></div><div id="mg" class="mg">${memHTML()}</div></div><div class="c"><h3>⭐ Звёздный кликер</h3><p class="mu">15 секунд — лови звёзды!</p><div class="f"><button class="btn" id="ck" data-a="cks">Старт</button><b id="cs">0</b><span class="mu">${me?'Рекорд: '+((S.users.find(u=>u.n==me.n)||{}).gc||0):'Войдите, чтобы сохранять рекорд'}</span></div></div>`}
+});

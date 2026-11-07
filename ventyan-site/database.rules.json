@@ -1,0 +1,13 @@
+{
+  "rules": {
+    ".read": true,
+    "site": {
+      ".write": true,
+      "pres": { "$u": { ".validate": "newData.isNumber()" } }
+    },
+    "pelle": { ".write": true },
+    "ver": { ".write": true },
+    "reviews": { ".write": true },
+    "site_users": { ".read": false, ".write": true }
+  }
+}

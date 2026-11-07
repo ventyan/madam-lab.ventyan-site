@@ -1,0 +1,5 @@
+/* ===== [ВКЛАДКА] ПРОФИЛЬ (profile.html): регистрация, вход, профиль, поиск людей =====
+   Подключается на своей странице: <script src="views/profile.js">. Общие помощники лежат в js/core.js и js/features.js. */
+Object.assign(V,{profile(){if(!me)return `<div class="c"><h3>👤 Добро пожаловать!</h3><p class="mu">Создайте аккаунт или войдите в уже созданный, чтобы оставлять отзывы, писать на форуме и получать достижения.</p><div class="f"><input id="ln" placeholder="Логин" autocomplete="username"><input id="lp" type="password" placeholder="Пароль (от 6 символов)" autocomplete="current-password"></div><div class="f"><label class="k">🎂 Дата рождения (нужна при регистрации, сайт 16+) <input type="date" id="lb" min="1900-01-01" max="${bdMax()}"></label></div><div class="f"><button class="btn" data-a="reg">✨ Создать аккаунт</button><button class="btn s" data-a="login">🔑 Войти в аккаунт</button></div></div>`;return PV(me.n,true)+COLL(me.n,true)},/* ▶ ВКЛАДКА «Достижения»: значки и титулы [КОД: вкладка] */
+});
+{const p=V.profile;V.profile=function(){return (me?SRCH():'')+p.call(this)}}
