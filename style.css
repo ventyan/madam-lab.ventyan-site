@@ -1,6 +1,6 @@
 /* Оформление сайта «звёздная новелла». Подключается из index.html: <link rel="stylesheet" href="style.css"> */
 /* ===== [CSS] ЦВЕТА И ОБЩИЕ СТИЛИ: переменные --p, --o, --v — главные цвета сайта ===== */
-:root{--bg:#fff3f9;--sf:#fff;--ink:#2b1040;--mu:#6d5482;--li:#ead9ff;--ln:#f0cfe4;--p:#ff4fa3;--o:#b23fe0;--v:#6a2fd0;--r:24px;--hf:'Unbounded';
+:root{--bg:#1e0b2e;--sf:#2c1745;--ink:#fbeaf5;--mu:#c9aedc;--li:#3d2263;--ln:#4a2a73;--p:#ff4fa3;--o:#b23fe0;--v:#6a2fd0;--r:24px;--hf:'Unbounded';
 --g:linear-gradient(120deg,var(--p),var(--o) 55%,var(--v));box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
 html{scroll-padding-top:env(safe-area-inset-top,0px)}
 *{box-sizing:border-box}
@@ -134,3 +134,11 @@ header{background-image:radial-gradient(#fff9 1px,transparent 1.5px),radial-grad
 a.t,a.t:visited{color:var(--ink);text-decoration:none;box-sizing:border-box}a.t[aria-current=page],a.t[aria-current=page]:visited{color:#fff}
 .vid{position:relative;aspect-ratio:16/9}.vid iframe{position:absolute;inset:0;width:100%;height:100%;border:0;border-radius:14px}
 details.c summary{cursor:pointer}details.c[open] summary{margin-bottom:4px}
+
+/* ===== [CSS] ПЕРВЫЙ КАДР: тёмный фон сразу (без белой вспышки) и заглушка, пока грузятся данные ===== */
+html{background:#1e0b2e}
+#m:empty:before{content:'✦ загружаем мир…';display:block;text-align:center;color:var(--mu);padding:60px 0;animation:ld 1.4s ease-in-out infinite}
+@keyframes ld{50%{opacity:.35}}
+#net.wait{color:var(--mu);border-color:var(--ln)}
+#net.ok{animation:none}
+@media(prefers-reduced-motion:reduce){#m:empty:before{animation:none}}

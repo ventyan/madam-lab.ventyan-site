@@ -1,5 +1,7 @@
 <!doctype html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>Вселенные Вентян — выберите сайт</title>
+<title>Madam Labs World — выберите вселенную</title>
+<meta name="description" content="Madam Labs World — мир историй: визуальные новеллы, дневники разработки, персонажи и закрытые вселенные.">
+<meta property="og:site_name" content="Madam Labs World"><meta property="og:title" content="Madam Labs World"><meta property="og:description" content="Мир историй: визуальные новеллы, дневники разработки и закрытые вселенные."><meta name="theme-color" content="#0d0518">
 <style>
 :root{color-scheme:dark;--ink:#f5eaff;--mu:#b9a3d6}
 *{box-sizing:border-box}body{margin:0;min-height:100vh;color:var(--ink);font:400 16px/1.5 'Onest',system-ui,sans-serif;
@@ -15,8 +17,8 @@ a.u.off{pointer-events:none;filter:saturate(.5) brightness(.7)}
 .u .st{position:absolute;top:16px;right:16px;font-size:12px;font-weight:600;background:#0005;border-radius:999px;padding:3px 11px}
 footer{text-align:center;color:var(--mu);font-size:13px;padding-bottom:30px}
 </style></head><body>
-<header><h1>✦ Вселенные Вентян</h1><p>Выберите, куда отправиться: звёздная новелла, история Пэлле и Васи или другая вселенная. Закрытые миры открываются паролем автора.</p></header>
-<main class="grid" id="g"></main><footer>© Вентян</footer>
+<header><h1>✦ Madam Labs World</h1><p>Мир историй Madam Labs: визуальные новеллы, дневники разработки и персонажи. Выберите вселенную — в каждой свой вход и свои аккаунты. Закрытые миры открываются паролем автора.</p></header>
+<main class="grid" id="g"></main><footer>© Madam Labs</footer>
 <script src="hub/universes.js"></script>
 <script>
 g.innerHTML=UNIVERSES.map(u=>`<a class="u ${u.url?'':'off'}" href="${u.url||'#'}" style="--c1:${u.c1};--c2:${u.c2}">

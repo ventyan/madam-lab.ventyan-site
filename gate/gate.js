@@ -55,6 +55,9 @@
     $('g-dt').textContent=n.toLocaleDateString('ru',{weekday:'long',day:'numeric',month:'long'})}
   tick();var iv=setInterval(tick,10000);
   setTimeout(function(){show('g-lock')},2400);
+  /* ===== [РАЗДЕЛ: сайт открыт для всех] если админка записала pelle/cfg/open = 1 — пароль не спрашиваем. Нет связи или значение пустое — вход закрыт ===== */
+  try{fetch('https://star-novel-6c2f2-default-rtdb.firebaseio.com/'+(d.key||'family')+'/cfg/open.json',{cache:'no-store'}).then(function(r){return r.json()}).then(function(v){
+    if(v===1||v===true){g.classList.add('out');document.documentElement.classList.remove('gl');clearInterval(iv);setTimeout(function(){g.remove()},800)}}).catch(function(){})}catch(e){}
   var opened=false;function open(){if(opened||$('g-lock').classList.contains('hide'))return;opened=true;show('g-login');setTimeout(function(){$('g-pw').focus()},400)}
   $('g-lock').onclick=open;addEventListener('keydown',open);
   function sha(t){return crypto.subtle.digest('SHA-256',new TextEncoder().encode(t)).then(function(b){return Array.from(new Uint8Array(b)).map(function(x){return x.toString(16).padStart(2,'0')}).join('')})}

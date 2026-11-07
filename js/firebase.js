@@ -11,7 +11,9 @@ const FB={doc:p=>({id:p.split('/').pop(),
   async get(){const v=await FBX(p);return{id:p.split('/').pop(),exists:v!==null,data:()=>v}},
   async set(o){await FBX(p,'PUT',o);await bumpV(p)},async delete(){await FBX(p,'DELETE');await bumpV(p)}}),
  collection:p=>({async get(){const v=(await FBX(p))||{};return{docs:Object.entries(v).map(([id,o])=>({id,exists:true,data:()=>o}))}}})};
-async function fbInit(){try{await FBX('site?shallow=true');return FB}catch{return null}}
+/* ===== [КОД: быстрый старт] сайт рисуется сразу из того, что есть в браузере, а не ждёт ответа базы; когда данные придут, страница обновится сама ===== */
+function earlyPaint(){try{const n=document.getElementById('net');if(n){n.className='wait';n.textContent='● подключаюсь…'}setMe();theme();render()}catch(e){}}
+async function fbInit(){earlyPaint();try{await FBX('site?shallow=true');return FB}catch{return null}}
 document.addEventListener('click',e=>{
  const btn=e.target.closest('#regBtn');if(!btn)return;
  const name=document.getElementById('username')?.value.trim(),email=document.getElementById('useremail')?.value.trim(),st=document.getElementById('statusMsg');
