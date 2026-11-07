@@ -1,0 +1,5 @@
+/* ===== [ВКЛАДКА] АРХИВ TELEGRAM (arch.html) =====
+   Подключается на своей странице: <script src="views/arch.js">. Общие помощники лежат в js/core.js и js/features.js. */
+Object.assign(V,{arch(){const q=aq.toLowerCase(),L=S.arch.filter(p=>(ed||!p.hide)&&(af=='all'||(p.k||[]).includes(af))&&(!abm||bmo('a'+p.id))&&(!q||(p.x+' '+(p.pq||'')).toLowerCase().includes(q))).sort((a,b)=>b.d<a.d?-1:b.d>a.d?1:0);let h='',m='';
+ L.forEach(p=>{const k=p.d.slice(0,7);if(k!=m){m=k;h+=`<h3>${new Date(k+'-01T12:00').toLocaleDateString('ru-RU',{month:'long',year:'numeric'})}</h3>`}h+=AP(p)});
+ return `<div class="c"><h3>📡 Архив Telegram</h3><p class="mu">История разработки из постов канала проекта. Постов: ${S.arch.length}.</p>${chips(AF,af,'af')}<div class="f"><button class="btn s" data-a="arnd">🎲 Случайный пост</button>${me?`<button class="btn ${abm?'':'s'}" data-a="abm">⭐ Закладки</button>`:''}</div><div class="f"><input id="aqs" type="search" value="${esc(aq)}" placeholder="Поиск по архиву…"></div></div><div class="tlc">${h||'<p class="mu">Ничего не найдено.</p>'}</div>`}});

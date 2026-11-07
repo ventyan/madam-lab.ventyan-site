@@ -1,0 +1,4 @@
+/* ===== [ВКЛАДКА] МУЗЫКА (mus.html): список треков (плеер внизу общий для всех страниц) =====
+   Подключается на своей странице: <script src="views/mus.js">. Общие помощники лежат в js/core.js и js/features.js. */
+Object.assign(V,{mus(){const L=trk().filter(t=>mcat=='all'||t.cat==mcat);
+ return `<div class="c"><h3>🎵 Музыкальный центр</h3><p class="mu">Нажмите ▶ — музыка включается только по вашему желанию.</p>${chips([['all','Все'],...MC],mcat,'mc2')}</div>`+(MC.map(([k,n])=>{const l=L.filter(t=>t.cat==k);return l.length?`<div class="c"><h3>${n}</h3>${l.map(t=>`<div class="tr"><div class="cv" ${t.cv?`style="background-image:url(${esc(gd(t.cv))})"`:''}>${t.cv?'':'🎵'}</div><b style="flex:1">${t.spo&&!ed?'??? (спойлер)':esc(t.t)}</b><button class="btn" data-a="pl" data-v="${t.id}" aria-label="Играть">▶</button></div>`).join('')}</div>`:''}).join('')||`<div class="c"><p class="mu">Треков пока нет.${ed?' Добавьте их через ⚙ на этой странице.':''}</p></div>`)+''}});
